@@ -29,12 +29,12 @@ package EventCalendar;
 	import java.util.ArrayList;
 	
 	@SuppressWarnings("unused")
-	public class Calendar {
+	public class EventCalendar {
 		
 	    static JLabel lblMonth, lblYear; 
 	    static JButton btnPrev, btnNext, btnAddEvent, btnDelEvent;
 	    static JTable tblCalendar;
-	    static JComboBox cmbYear;
+	    static JComboBox<String> cmbYear;
 	    static JFrame frmMain;
 	    static Container pane;
 	    static DefaultTableModel mtblCalendar; 
@@ -46,12 +46,10 @@ package EventCalendar;
 	    static int selectedDay,selectedMonth,selectedYear;
 	    static String newLine = "\n";
 	    static String eventValue;
-	    static ArrayList<Event> list = new ArrayList<Event>();
 	    static Boolean isCellSelected= false;
 	    
-	    
 	    public static void main (String args[]){
-	        
+		       
 	        //Prepare frame
 	        frmMain = new JFrame ("Event Calendar"); //Create frame
 	        frmMain.setSize(790, 790); //Set size to 400x400 pixels
@@ -63,11 +61,13 @@ package EventCalendar;
 	        //Create controls
 	        lblMonth = new JLabel ("January");
 	        lblYear = new JLabel ("Change year:");
-	        cmbYear = new JComboBox();
+	        cmbYear = new JComboBox<String>();
 	        btnPrev = new JButton ("Prev");
 	        btnNext = new JButton ("Next");
 	        mtblCalendar = new DefaultTableModel(){
-	        	public boolean isCellEditable(int rowIndex, int mColIndex){return false;}};
+				private static final long serialVersionUID = 1L;
+
+				public boolean isCellEditable(int rowIndex, int mColIndex){return false;}};
 	        tblCalendar = new JTable(mtblCalendar);
 	        stblCalendar = new JScrollPane(tblCalendar);
 	        pnlCalendar = new JPanel(null);
@@ -224,7 +224,10 @@ package EventCalendar;
 	    }
 	    
 	    static class tblCalendarRenderer extends DefaultTableCellRenderer{
-	        public Component getTableCellRendererComponent 
+
+			private static final long serialVersionUID = 1L;
+
+			public Component getTableCellRendererComponent 
 	        		(JTable table, Object value, boolean selected,
 	        		boolean focused, int row, int column){
 	            super.getTableCellRendererComponent(table, value, selected, focused, row, column);
@@ -243,7 +246,7 @@ package EventCalendar;
 	                	setBackground(Color.GRAY);
 	                }
 	                //set days with events to yellow
-	                if(findEvent(value,currentMonth+1,currentYear)) {
+	                if(EventManager.findEvent(value,currentMonth+1,currentYear)) {
 	                	setBackground(Color.YELLOW);
 	                }
 	                
@@ -256,19 +259,17 @@ package EventCalendar;
 	            	selectedMonth=currentMonth+1;
 	            	selectedYear=currentYear;
 	            	selectedDay= Integer.parseInt(value.toString());
-	            	displayEvents(selectedDay,selectedMonth,selectedYear);
+	            	EventManager.displayEvents(selectedDay,selectedMonth,selectedYear);
 	            	isCellSelected=true;
 	            }
-	            
 	            setBorder(null);
-	            setForeground(Color.BLACK);
-	            
-	            
-	            
-	            	         
+	            setForeground(Color.BLACK);	         
 	            return this;
 	        }
-	        }
+	    }
+	    
+	    
+	    
 	    
 	    //previous button
 	    static class btnPrev_Action implements ActionListener{
@@ -283,6 +284,9 @@ package EventCalendar;
 	            refreshCalendar(currentMonth, currentYear);
 	        }
 	    }
+	    
+	    
+	  
 	    //next button
 	    static class btnNext_Action implements ActionListener{
 	        public void actionPerformed (ActionEvent e){
@@ -311,12 +315,12 @@ package EventCalendar;
 	    static class btnAddEvent_Action implements ActionListener{
 	        public void actionPerformed (ActionEvent e){
 	        	if (e.getSource() == btnAddEvent) {
-	        	createEvent();
+	        	EventManager.createEvent();
 	        	refreshCalendar(currentMonth, currentYear);
 	        	//resets all events display
 		        allEvents.setText(null);
 		    	allEvents.setText("");
-		    	mainEventDisplay();
+		    	EventManager.mainEventDisplay();
 	        	}
 	        }
 	    }
@@ -324,143 +328,146 @@ package EventCalendar;
 	    static class btnDelEvent_Action implements ActionListener{
 	        public void actionPerformed (ActionEvent e){
 	        	if (e.getSource() == btnDelEvent) {
-	        	deleteEvent(selectedDay,selectedMonth,selectedYear);
+	        	EventManager.deleteEvent(selectedDay,selectedMonth,selectedYear);
 	        	refreshCalendar(currentMonth, currentYear);
 	        	//resets all events display
 		        allEvents.setText(null);
 		    	allEvents.setText("");
-		    	mainEventDisplay();
+		    	EventManager.mainEventDisplay();
 	        	}
 	        }
 	    }
 	    
-	    
-	    //creates new event
-	    public static void createEvent() {
-	    	Event singleEvent = new Event();
-	    	//checks if a date is selected
-	    	if (isCellSelected==false) {
-	    		JOptionPane.showMessageDialog(frmMain, "ERROR: No date selected");
-	    	}
-	    	//checks if anything is in the text box
-	    	else if(txtdata.getText().equals("")) {  
-	    		JOptionPane.showMessageDialog(frmMain, "ERROR: No event entered to be added");
-	    		
-	    	}
-	    	
-	    	else {
-	    		
-	    	String getValue = txtdata.getText();
-	    	eventValue = getValue;
-	    	singleEvent.setEventName(eventValue);
-	    	singleEvent.setEventDay(selectedDay);
-	    	singleEvent.setEventMonth(selectedMonth);
-	    	singleEvent.setEventYear(selectedYear);
-	    	list.add(singleEvent);
-	    	txtdata.setText("");
-	    	
-	    	}
-	    
-	 
-	    }
-	    
-	    public static void deleteEvent(int day,int month,int year) {
-	    	//checks if a date is selected
-	    	if (isCellSelected==false) {
-	    		JOptionPane.showMessageDialog(frmMain, "ERROR: No date selected");
-	    	}
-	    	else {
-	    	boolean hasEvent= false;
-	    	for(int i =0;i<list.size();i++) {
-	    		if(list.get(i).getEventDay() ==day &&
-	    			list.get(i).getEventMonth() ==month &&
-	    			list.get(i).getEventYear()==year) {
-	    			list.remove(i);
-	    			hasEvent= true;
-	    			break;
-	    			}
-	    		}
-	    	//checks if any events exist on this day
-	    	if(hasEvent==false) {
-	    		JOptionPane.showMessageDialog(frmMain, "ERROR: No event on this date to be deleted");
-	    	}
-	    	}
-	    	
-	    }
-	    	
-	    //displays events for selected day
-	    public static void displayEvents(int day,int month,int year) {
-	    	
-	    	for(int i =0;i<list.size();i++) {
-	    		if(list.get(i).getEventDay() ==day &&
-	    			list.get(i).getEventMonth() ==month &&
-	    			list.get(i).getEventYear()==year) {
-	    			events.append((list.get(i).getEventName()+ newLine));
-	    		}		
-	    	}
-	    	
-	    	
-	    }
-	    //main display of all events
-	    public static void mainEventDisplay() {
-	    	int[] dayArr = new int[list.size()];
-	    	int[] monthArr = new int[list.size()];
-	    	int[] yearArr = new int[list.size()];
-	    	for(int i =0;i<list.size();i++) {
-	    		dayArr[i] = list.get(i).getEventDay();
-	    		monthArr[i] = list.get(i).getEventDay();
-	    		yearArr[i] = list.get(i).getEventDay();
-	    	}
-	    	Collections.sort(list, new SortEvent());
-	        allEvents.append("Your up coming events: "+ newLine);
-	    	for(int i =0;i<list.size();i++) {
-	    		allEvents.append(("- "+list.get(i).getEventName()+ "     [" 
-	    				+ list.get(i).getEventMonth()
-	    				+ "/" + list.get(i).getEventDay() 
-	    				+ "/" + list.get(i).getEventYear() 
-	    				+ "]" +newLine));
-	    	}
-	    }
-	    //checks if event exists on specific day
-		public static boolean findEvent(Object value,int month,int year) {
-			int day = Integer.parseInt(value.toString());
-			boolean hasEvent = false;
-			for(int i =0;i<list.size();i++) {
-			if(list.get(i).getEventDay()== day &&
-					list.get(i).getEventMonth()== month &&
-			        list.get(i).getEventYear()== year){
-				hasEvent= true;
-				}
-			}
-			
-			return hasEvent;
-		}
-		
-	}
-
-	class SortEvent implements Comparator<Event> 
-	{ 
-		public int compare(Event a , Event b) {
-			
-			int dayCompare = Integer.valueOf(a.eventDay).compareTo(Integer.valueOf(b.eventDay));
-			int monthCompare = Integer.valueOf(a.eventMonth).compareTo(Integer.valueOf(b.eventMonth));
-			int yearCompare = Integer.valueOf(a.eventYear).compareTo(Integer.valueOf(b.eventYear));
-			
-			if(yearCompare ==0) {
-				if(monthCompare ==0) {
-					return dayCompare;
+	    //sort events
+		class SortEvent implements Comparator<Event> 
+		{ 
+			public int compare(Event a , Event b) {
+				
+				int dayCompare = Integer.valueOf(a.eventDay).compareTo(Integer.valueOf(b.eventDay));
+				int monthCompare = Integer.valueOf(a.eventMonth).compareTo(Integer.valueOf(b.eventMonth));
+				int yearCompare = Integer.valueOf(a.eventYear).compareTo(Integer.valueOf(b.eventYear));
+				
+				if(yearCompare ==0) {
+					if(monthCompare ==0) {
+						return dayCompare;
+					}
+					else {
+						return monthCompare;
+					}
 				}
 				else {
-					return monthCompare;
+					return yearCompare;
 				}
-			}
-			else {
-				return yearCompare;
-			}
-			
-		} 
+				
+			} 
+		}
+	    
 		
-	}
+	    static public class EventManager{
+	    	static ArrayList<Event> list = new ArrayList<Event>();
+		    //creates new event
+		    public static void createEvent() {
+		    	Event singleEvent = new Event();
+		    	//checks if a date is selected
+		    	if (isCellSelected==false) {
+		    		JOptionPane.showMessageDialog(frmMain, "ERROR: No date selected");
+		    	}
+		    	//checks if anything is in the text box
+		    	else if(txtdata.getText().equals("")) {  
+		    		JOptionPane.showMessageDialog(frmMain, "ERROR: No event entered to be added");
+		    		
+		    	}
+		    	
+		    	else {
+		    		
+		    	String getValue = txtdata.getText();
+		    	eventValue = getValue;
+		    	singleEvent.setEventName(eventValue);
+		    	singleEvent.setEventDay(selectedDay);
+		    	singleEvent.setEventMonth(selectedMonth);
+		    	singleEvent.setEventYear(selectedYear);
+		    	list.add(singleEvent);
+		    	txtdata.setText("");
+		    	
+		    	}
+		    }
+		    
+		    public static void deleteEvent(int day,int month,int year) {
+		    	//checks if a date is selected
+		    	if (isCellSelected==false) {
+		    		JOptionPane.showMessageDialog(frmMain, "ERROR: No date selected");
+		    	}
+		    	else {
+		    	boolean hasEvent= false;
+		    	for(int i =0;i<list.size();i++) {
+		    		if(list.get(i).getEventDay() ==day &&
+		    			list.get(i).getEventMonth() ==month &&
+		    			list.get(i).getEventYear()==year) {
+		    			list.remove(i);
+		    			hasEvent= true;
+		    			break;
+		    			}
+		    		}
+		    	//checks if any events exist on this day
+		    	if(hasEvent==false) {
+		    		JOptionPane.showMessageDialog(frmMain, "ERROR: No event on this date to be deleted");
+		    	}
+		    	}
+		    	
+		    }
+		    	
+		    //displays events for selected day
+		    public static void displayEvents(int day,int month,int year) {
+		    	
+		    	for(int i =0;i<list.size();i++) {
+		    		if(list.get(i).getEventDay() ==day &&
+		    			list.get(i).getEventMonth() ==month &&
+		    			list.get(i).getEventYear()==year) {
+		    			events.append((list.get(i).getEventName()+ newLine));
+		    		}		
+		    	}
+		    	
+		    	
+		    }
+		    //main display of all events
+		    public static void mainEventDisplay() {
+		    	int[] dayArr = new int[list.size()];
+		    	int[] monthArr = new int[list.size()];
+		    	int[] yearArr = new int[list.size()];
+		    	for(int i =0;i<list.size();i++) {
+		    		dayArr[i] = list.get(i).getEventDay();
+		    		monthArr[i] = list.get(i).getEventDay();
+		    		yearArr[i] = list.get(i).getEventDay();
+		    	}
+		    	EventCalendar calendar = new EventCalendar();
+		    	Collections.sort(list, calendar.new SortEvent());
+		        allEvents.append("Your up coming events: "+ newLine);
+		    	for(int i =0;i<list.size();i++) {
+		    		allEvents.append(("- "+list.get(i).getEventName()+ "     [" 
+		    				+ list.get(i).getEventMonth()
+		    				+ "/" + list.get(i).getEventDay() 
+		    				+ "/" + list.get(i).getEventYear() 
+		    				+ "]" +newLine));
+		    	}
+		    }
+		    //checks if event exists on specific day
+			public static boolean findEvent(Object value,int month,int year) {
+				int day = Integer.parseInt(value.toString());
+				boolean hasEvent = false;
+				for(int i =0;i<list.size();i++) {
+				if(list.get(i).getEventDay()== day &&
+						list.get(i).getEventMonth()== month &&
+				        list.get(i).getEventYear()== year){
+					hasEvent= true;
+					}
+				}
+				
+				return hasEvent;
+			}
+				
+		}//end EventManager
+
+	}//end EventCalendar
 	
 
 
