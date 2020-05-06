@@ -1,0 +1,45 @@
+@media (max-width:575px) {
+    .display-4 {
+        font-size: 1.5rem;
+    }
+    .day h5 {
+        background-color: #f8f9fa;
+        padding: 3px 5px 5px;
+        margin: -8px -8px 8px -8px;
+    }
+    .date {
+        padding-left: 4px;
+    }
+}
+
+@media (min-width: 576px) {
+    .day {
+        height: 8vw;
+    }
+}
+ .heading{
+	padding-top: 15px;
+	padding-bottom: 15px; 
+ }
+ .padding-bottom-30{
+ padding-bottom: 30px;
+ }
+ .box {
+  margin: 25px;
+/*   height: auto; */
+  width: 50vw;
+  background: #fff;
+  box-shadow: 1px 1px 10px #333;
+  border-radius: 5px;
+}
+
+.flex-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 50px;
+  width: 450px;
+  height: 125px;
+  background: #fff;
+
+}

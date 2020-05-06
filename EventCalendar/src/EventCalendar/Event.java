@@ -1,8 +1,8 @@
 package EventCalendar;
 
 public class Event {
-	String eventName;
-	int eventDay, eventMonth, eventYear;
+	private String eventName;
+	private int eventDay, eventMonth, eventYear;
 	
 	public Event() {
 		eventName = "no events entered.";	

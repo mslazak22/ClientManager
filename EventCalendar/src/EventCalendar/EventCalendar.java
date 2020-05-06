@@ -87,8 +87,8 @@ package EventCalendar;
 	      
 	        //Set border
 	        pnlCalendar.setBorder(BorderFactory.createTitledBorder("Calendar"));
-	        pnlEvents.setBorder(BorderFactory.createTitledBorder("Events"));
-	        pnlAllEvents.setBorder(BorderFactory.createTitledBorder("All Events"));
+	        pnlEvents.setBorder(BorderFactory.createTitledBorder("Appointment"));
+	        pnlAllEvents.setBorder(BorderFactory.createTitledBorder("Upcoming Appointments"));
 	        //Register action listeners
 	        btnPrev.addActionListener(new btnPrev_Action());
 	        btnNext.addActionListener(new btnNext_Action());
@@ -343,9 +343,9 @@ package EventCalendar;
 		{ 
 			public int compare(Event a , Event b) {
 				
-				int dayCompare = Integer.valueOf(a.eventDay).compareTo(Integer.valueOf(b.eventDay));
-				int monthCompare = Integer.valueOf(a.eventMonth).compareTo(Integer.valueOf(b.eventMonth));
-				int yearCompare = Integer.valueOf(a.eventYear).compareTo(Integer.valueOf(b.eventYear));
+				int dayCompare = Integer.valueOf(a.getEventDay()).compareTo(Integer.valueOf(b.getEventDay()));
+				int monthCompare = Integer.valueOf(a.getEventMonth()).compareTo(Integer.valueOf(b.getEventMonth()));
+				int yearCompare = Integer.valueOf(a.getEventYear()).compareTo(Integer.valueOf(b.getEventYear()));
 				
 				if(yearCompare ==0) {
 					if(monthCompare ==0) {
@@ -387,6 +387,7 @@ package EventCalendar;
 		    	singleEvent.setEventMonth(selectedMonth);
 		    	singleEvent.setEventYear(selectedYear);
 		    	list.add(singleEvent);
+		    	
 		    	txtdata.setText("");
 		    	
 		    	}
